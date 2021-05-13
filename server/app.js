@@ -1,3 +1,5 @@
+const path = require("path");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -8,6 +10,7 @@ const feedRoutes = require("./routes/feed.js");
 const app = express();
 
 app.use(bodyParser.json());
+app.use("/image", express.static(path.join(__dirname, "images")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -20,6 +23,14 @@ app.use((req, res, next) => {
 });
 
 app.use("/feed", feedRoutes);
+
+// General application-wide error handler
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  res.status(status).json({ message: message });
+});
 
 mongoose
   .connect(

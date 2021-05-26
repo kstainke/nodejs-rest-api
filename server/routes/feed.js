@@ -1,6 +1,6 @@
 const express = require("express");
 // Validation middleware
-const { body } = require("express-validator/check");
+const { body } = require("express-validator");
 
 // Import Controllers
 const feedController = require("../controllers/feed");

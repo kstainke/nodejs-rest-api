@@ -7,6 +7,7 @@ const multer = require("multer");
 
 // Routes
 const feedRoutes = require("./routes/feed.js");
+const authRoutes = require("./routes/auth.js");
 
 const app = express();
 
@@ -49,18 +50,21 @@ app.use((req, res, next) => {
 });
 
 app.use("/feed", feedRoutes);
+app.use("/auth", authRoutes);
 
 // General application-wide error handler
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 mongoose
   .connect(
-    "mongodb+srv://karl:0bOrse3h8Axl8gI3@cluster0.74qpc.mongodb.net/messages?retryWrites=true&w=majority"
+    "mongodb+srv://karl:0bOrse3h8Axl8gI3@cluster0.74qpc.mongodb.net/messages?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then((result) => {
     app.listen(8080);

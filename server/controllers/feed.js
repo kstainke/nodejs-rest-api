@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { validationResult } = require("express-validator/check");
+const { validationResult } = require("express-validator");
 
 const Post = require("../models/post");
 
@@ -18,13 +18,11 @@ exports.getPosts = (req, res, next) => {
         .limit(perPage);
     })
     .then((posts) => {
-      res
-        .status(200)
-        .json({
-          message: "Fetched posts successfully.",
-          posts: posts,
-          totalItems: totalItems,
-        });
+      res.status(200).json({
+        message: "Fetched posts successfully.",
+        posts: posts,
+        totalItems: totalItems,
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {

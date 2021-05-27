@@ -4,8 +4,15 @@ const path = require("path");
 const { validationResult } = require("express-validator");
 
 const Post = require("../models/post");
+const User = require("../models/user");
 
 exports.getPosts = (req, res, next) => {
+  const authHeader = req.get("Authorization");
+  if (!authHeader) {
+    const error = new Error("Not authenticated");
+    error.statusCode = 401;
+    throw error;
+  }
   const currentPage = req.query.page || 1;
   const perPage = 2;
   let totalItems;
@@ -47,20 +54,29 @@ exports.createPost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   const imageUrl = req.file.path;
+  let creator;
   // Create post in db
   const post = new Post({
     title: title,
     content: content,
     imageUrl: imageUrl,
-    creator: { name: "Karl" },
+    creator: req.userId,
   });
   post
     .save()
     .then((result) => {
-      console.log(result);
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      creator = user;
+      user.posts.push(post);
+      return user.save();
+    })
+    .then((result) => {
       res.status(201).json({
         message: "Post created successfully!",
-        post: result,
+        post: post,
+        creator: { _id: creator._id, name: creator.name },
       });
     })
     .catch((err) => {
